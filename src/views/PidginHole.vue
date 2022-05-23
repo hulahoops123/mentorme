@@ -10,7 +10,7 @@
     @shutitdown="isAddPidgpal = false"
   ></AddPidgpalVue>
 
-  <button @click="toggleWorkings">Toggle Inner Workings</button>
+  <button @click="toggleWorkings">Toggle Inner</button>
   <div v-if="showWorkings">
     <h3>global state : {{ gstate.global.loggedInUserProfile }}</h3>
     <h3>Pidpals : {{ pidgPals }}</h3>
