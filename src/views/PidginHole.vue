@@ -11,13 +11,13 @@
   ></AddPidgpalVue>
 
   <button @click="toggleWorkings">Toggle Inner</button>
-  <div v-if="showWorkings">
-    <h3>global state : {{ gstate.global.loggedInUserProfile }}</h3>
+  <div v-if="showWorkings" hidden>
+    <!-- <h3>global state : {{ gstate.global.loggedInUserProfile }}</h3>
     <h3>Pidpals : {{ pidgPals }}</h3>
     <h4>palFromPairs : {{ palFromPairs }}</h4>
-    <h4>msgPairIdPerContact : {{ msgPairIdPerContact }}</h4>
+    <h4>msgPairIdPerContact : {{ msgPairIdPerContact }}</h4> -->
     <h3>contactGrid : {{ contactGrid }}</h3>
-    <h6 style="color: crimson">Status Grid :{{ statusGrid }}</h6>
+    <!-- <h6 style="color: crimson">Status Grid :{{ statusGrid }}</h6> -->
   </div>
 
   <div class="grid-container">
@@ -57,7 +57,7 @@ import {
   getUserProfilePic,
 } from "../firestore";
 
-const showWorkings = ref(false);
+const showWorkings = ref(true);
 function toggleWorkings() {
   showWorkings.value = !showWorkings.value;
 }
@@ -80,7 +80,7 @@ onBeforeUnmount(cleanupHandleASC);
 
 const { foundPairs: pidgPals } = usePidgPalListener(uname);
 
-//get the pals name from palpairs
+//get the pals name from pidgpals/foundpairs
 const palFromPairs = computed(() =>
   pidgPals.value.map((doc) => {
     return {
@@ -89,6 +89,26 @@ const palFromPairs = computed(() =>
     };
   })
 );
+
+const msgPairIdPerContact2 = ref<any[]>([]);
+msgPairIdPerContact2.value = getPalFromPairs();
+function getPalFromPairs() {
+  watch(
+    () => gstate.global.loggedInUserProfile.ppContacts,
+    () => {
+      gstate.global.loggedInUserProfile.ppContacts.map((contact: string) => {
+        if (palFromPairs.value.find((pair) => pair.pal === contact)) {
+          return palFromPairs.value.find((pair) => pair.pal === contact);
+        } else {
+          return {
+            id: "notStarted",
+            pal: contact,
+          };
+        }
+      });
+    }
+  );
+}
 
 //check if a palpair (and therefore  msgid) exists for each contact
 const msgPairIdPerContact = computed(() =>
@@ -134,6 +154,37 @@ const contactGrid: any[] = computed(async () => {
   }
   gstate.global.updateStatusGrid(cttGrid);
 });
+
+// async function calculateStatusGrid() {
+//   const cttGrid = [];
+//   for (const pair of msgPairIdPerContact.value) {
+//     const gotPic = await getUserProfilePic(pair.pal);
+
+//     if (pair.id != "notStarted") {
+//       const gotStatus = await getLastMsgStatusfromMsgsCollection(
+//         pair.id,
+//         pair.pal,
+//         gstate.global.loggedInUserProfile.userName
+//       ).catch((e) => console.log(e));
+//       cttGrid.push({
+//         pal: pair.pal,
+//         status: gotStatus.status,
+//         pic: gotPic,
+//         pairID: pair.id,
+//       });
+//     } else {
+//       cttGrid.push({
+//         pal: pair.pal,
+//         status: "notStarted",
+//         pic: gotPic,
+//         pairID: pair.id,
+//       });
+//     }
+//   }
+//   gstate.global.updateStatusGrid(cttGrid);
+// }
+
+// calculateStatusGrid();
 
 //watch the pairs collection. add any new pairs to my contacts
 //a new pair means that a new message from a new sender has been sent to me
