@@ -35,8 +35,7 @@
           individualPal.pic,
           individualPal.status,
           individualPal.pairID
-        )
-      "
+        )"
     ></PidgpalCardVue>
   </div>
 </template>
@@ -52,8 +51,8 @@ import UserInfoVue from "../components/UserInfo.vue";
 import { auth } from "../firebaseInit";
 import {
   addPidgpalToUserContacts,
-  getUsrProfileFirestore,
-  getLastMsgStatusfromMsgsCollection,
+  getUserProfileFirestore,
+  getLastMessageStatusfromMessagesCollection,
   usePidgPalListener,
   getUserProfilePic,
   useMessageListener,
@@ -114,8 +113,8 @@ const palFromPairs = computed(() =>
   })
 );
 
-const msgPairIdPerContact2 = ref<any[]>([]);
-msgPairIdPerContact2.value = getPalFromPairs();
+const messagePairIdPerContact2 = ref<any[]>([]);
+messagePairIdPerContact2.value = getPalFromPairs();
 function getPalFromPairs() {
   watch(
     () => gstate.global.loggedInUserProfile.ppContacts,
@@ -135,7 +134,7 @@ function getPalFromPairs() {
 }
 
 //check if a palpair (and therefore  msgid) exists for each contact
-const msgPairIdPerContact = computed(() =>
+const messagePairIdPerContact = computed(() =>
   userContacts.value.map((contact: string) => {
     if (palFromPairs.value.find((pair) => pair.pal === contact)) {
       return palFromPairs.value.find((pair) => pair.pal === contact);
@@ -152,11 +151,11 @@ const msgPairIdPerContact = computed(() =>
 //calculate flight status for each last message
 const contactGrid: any[] = computed(async () => {
   const cttGrid = [];
-  for (const pair of msgPairIdPerContact.value) {
+  for (const pair of messagePairIdPerContact.value) {
     const gotPic = await getUserProfilePic(pair.pal);
 
     if (pair.id != "notStarted") {
-      const gotStatus = await getLastMsgStatusfromMsgsCollection(
+      const gotStatus = await getLastMessageStatusfromMessagesCollection(
         pair.id,
         pair.pal,
         gstate.global.loggedInUserProfile.userName
@@ -234,7 +233,7 @@ addPalfromPairsToUserContacts();
 
 async function updateGstateUserProfile() {
   //get the latest user profile from firebase
-  const userProfileData = await getUsrProfileFirestore(uid).catch((e) => console.log(e));
+  const userProfileData = await getUserProfileFirestore(uid).catch((e) => console.log(e));
   //update the global variable
   gstate.global.updateUsrGlobalState({ uid: uid, ...userProfileData });
 }

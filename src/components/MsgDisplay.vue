@@ -2,10 +2,10 @@
   <!-- <p>gotMessages: {{ gotMessages }}</p> -->
 
   <ul v-for="item of gotMessages">
-    <h4 style="color: blue" v-if="item.sender === palname">
+    <h4 style="color: blue" v-if="item.sender === palName">
       {{ item.msgText }}
     </h4>
-    <h5 style="color: red" v-if="item.sender === myUsrName">
+    <h5 style="color: red" v-if="item.sender === myUserName">
       {{ item.msgText }}
     </h5>
   </ul>
@@ -15,10 +15,10 @@ import { computed, inject, ref, watch } from "vue";
 import { getMessagesfromMessagesCollection } from "../firestore";
 
 const gstate: any = inject("global");
-const myUsrName: string = gstate.global.loggedInUserProfile.userName;
-const palname: string = gstate.global.globalPpSpotlight.palname;
-const palstatus: any = computed(() => gstate.global.globalPpSpotlight.status);
-const palpairid: any = computed(() => gstate.global.globalPpSpotlight.pairID);
+const myUserName: string = gstate.global.loggedInUserProfile.userName;
+const palName: string = gstate.global.globalPpSpotlight.palname;
+const palStatus: any = computed(() => gstate.global.globalPpSpotlight.status);
+const palPairId: any = computed(() => gstate.global.globalPpSpotlight.pairID);
 
 const gotMessages = ref([]);
 
@@ -41,7 +41,7 @@ watch(
 getMessages(); //to fetch messages on first load
 
 async function getMessages() {
-  const result = await getMessagesfromMessagesCollection(palpairid.value).catch((err) =>
+  const result = await getMessagesfromMessagesCollection(palPairId.value).catch((err) =>
     console.log(err)
   );
   if (result) {
@@ -50,9 +50,9 @@ async function getMessages() {
       // if transit and last msg sender not me dont display
       if (index == length - 1) {
         if (
-          palstatus.value === "home" ||
-          palstatus.value === "away" ||
-          (palstatus.value === "transit" && singlemsg.sender === myUsrName)
+          palStatus.value === "home" ||
+          palStatus.value === "away" ||
+          (palStatus.value === "transit" && singlemsg.sender === myUserName)
         ) {
           return singlemsg;
         } else {

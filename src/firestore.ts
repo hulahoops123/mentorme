@@ -22,9 +22,9 @@ const userProfilesCollection = collection(firestore, "userProfiles"); //v9
 const pidgpalsCollection = collection(firestore, "pidgpals");
 const messagesCollection = collection(firestore, "messages");
 
-const msgsCollection2 = collection(firestore,"messages2");
+const messagesCollection2 = collection(firestore,"messages2");
 
-export const getUsrProfileFirestore = async (id: string) => {
+export const getUserProfileFirestore = async (id: string) => {
   const searchForThisUser = doc(userProfilesCollection, id);
   const userProfileQuery = await getDoc(searchForThisUser); //v9
   return userProfileQuery.exists() ? userProfileQuery.data() : null;
@@ -41,21 +41,21 @@ export const checkIfUserNameUnique = async (userName: string) => {
 
 export const getMessagesfromMessagesCollection =async (msgID:string) => {
   const getThisMsgArray = doc(messagesCollection, msgID);
-  const msgQuery = await getDoc(getThisMsgArray);
-  return msgQuery.exists() && msgQuery.data();
+  const messageQuery = await getDoc(getThisMsgArray);
+  return messageQuery.exists() && messageQuery.data();
 }
 
-interface LastMsgStatus {
+interface LastMessageStatus {
   status: string;
   pal: string;
 }
 
 //gets the last message, calculates status based on flight time
-export const getLastMsgStatusfromMsgsCollection:LastMsgStatus = async (msgID:string, pal:string, uname:string) => {
+export const getLastMessageStatusfromMessagesCollection:LastMessageStatus = async (msgID:string, pal:string, uname:string) => {
   const getThisMsgArray = doc(messagesCollection, msgID);
-  const msgQuery = await getDoc(getThisMsgArray);
-  const msgsArrlength = msgQuery.exists()?msgQuery.data().msgsArr.length:1;
-  const lastMsg = msgQuery.exists()? msgQuery.data().msgsArr[msgsArrlength-1]:null;
+  const messageQuery = await getDoc(getThisMsgArray);
+  const messagesArrayLength = messageQuery.exists()?messageQuery.data().msgsArr.length:1;
+  const lastMsg = messageQuery.exists()? messageQuery.data().msgsArr[messagesArrayLength-1]:null;
   if (!lastMsg) {return {pal:pal, status:'notStarted'}}
   const sender = lastMsg.sender;
   const timeSent = lastMsg.timeSent.seconds;
@@ -169,7 +169,7 @@ export function usePidgPalListener(userName: string): PidgPalListenerReturns {
 export function useMessageListener(username:string){
   const foundPidgins = ref<any[]>([]);
   let found = [];
-  const findPidginsWithUsername = query(msgsCollection2, where("members", "array-contains",username));
+  const findPidginsWithUsername = query(messagesCollection2, where("members", "array-contains",username));
   const detachMsgListener = onSnapshot(findPidginsWithUsername,(foundDocs) => {
     found = foundDocs.docs.map((doc) => {
       return{
@@ -204,14 +204,14 @@ export async function getUserProfilePic(userName:string) {
   return matchingUserNames.size > 0 ? thePic[0].pic : "noPic";
 }
 
-export async function addMsgToExisting(msg:object, pairID:string): Promise<void> {
-  const msgRef = doc(messagesCollection, pairID);
-  return await updateDoc(msgRef,{
+export async function addMessageToExisting(msg:object, pairID:string): Promise<void> {
+  const messagesReference = doc(messagesCollection, pairID);
+  return await updateDoc(messagesReference,{
     msgsArr:arrayUnion({msgText:msg.msgText,sender:msg.sender,timeSent:Timestamp.now()})
   });
 }
 
-export async function addMsgToNew(msg:object, pairID:string) {
+export async function addMessagesToNew(msg:object, pairID:string) {
   const msgRef = doc(messagesCollection, pairID);
   return await setDoc(msgRef,{
     msgsArr:arrayUnion({msgText:msg.msgText,sender:msg.sender,timeSent:Timestamp.now()})

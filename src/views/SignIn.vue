@@ -11,7 +11,7 @@
 <script setup lang="ts">
 import { auth } from "../firebaseInit";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { getUsrProfileFirestore, addUserToUserProfilesCollection } from "../firestore";
+import { getUserProfileFirestore, addUserToUserProfilesCollection } from "../firestore";
 import { useRouter } from "vue-router";
 import { inject, ref } from "vue";
 import UsernameComponent from "../components/UsernameCheck.vue";
@@ -38,7 +38,7 @@ const googleSignIn = () => {
 };
 
 const checkIfUserInUsersCollection = () => {
-  getUsrProfileFirestore(uid.value).then((userProfileData) => {
+  getUserProfileFirestore(uid.value).then((userProfileData) => {
     if (userProfileData != null) {
       gstate.global.updateUsrGlobalState({ uid: uid.value, ...userProfileData });
       router.push("pidgin-hole");

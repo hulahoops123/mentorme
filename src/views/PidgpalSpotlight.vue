@@ -1,7 +1,7 @@
 <template>
   <h3>This is the pidgpal spotlight</h3>
   <button @click="router.back()">◀️ back</button>
-  <UserInfoVue :pic="palpic" :display-name="palname"></UserInfoVue>
+  <UserInfoVue :pic="palPic" :display-name="palname"></UserInfoVue>
   <button class="btn btn-success" @click="blockUser(palname)">Block</button>
   <br />
   <br />
@@ -15,7 +15,7 @@ import MsgDisplayVue from "../components/MsgDisplay.vue";
 import { inject, ref } from "vue";
 import { useRouter } from "vue-router";
 import UserInfoVue from "../components/UserInfo.vue";
-import { addPidgpalToBlockedContacts, getUsrProfileFirestore } from "../firestore";
+import { addPidgpalToBlockedContacts, getUserProfileFirestore } from "../firestore";
 import MsgCompose from "../components/MsgCompose.vue";
 
 const router = useRouter();
@@ -23,7 +23,7 @@ const gstate: any = inject("global");
 const uid = gstate.global.loggedInUserProfile.uid;
 
 const palname: string = gstate.global.globalPpSpotlight.palname;
-const palpic: string = gstate.global.globalPpSpotlight.palpic;
+const palPic: string = gstate.global.globalPpSpotlight.palpic;
 
 const shouldUpdateMessages = ref(false);
 function newMessageSent() {
@@ -41,7 +41,7 @@ async function blockUser(blockThisPal: string) {
 
 async function updateGstateUserProfile() {
   //get the latest user profile from firebase
-  const userProfileData = await getUsrProfileFirestore(uid).catch((e) => console.log(e));
+  const userProfileData = await getUserProfileFirestore(uid).catch((e) => console.log(e));
   //update the global variable
   gstate.global.updateUsrGlobalState({ uid: uid, ...userProfileData });
 }
