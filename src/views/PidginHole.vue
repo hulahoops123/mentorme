@@ -10,13 +10,14 @@
     @shutitdown="isAddPidgpal = false"
   ></AddPidgpalVue>
 
-  <button @click="toggleWorkings">Toggle Inner</button>
+  <!-- <button @click="toggleWorkings">Toggle Inner</button> -->
   <div v-if="showWorkings" hidden>
     <!-- <h3>global state : {{ gstate.global.loggedInUserProfile }}</h3>
     <h3>Pidpals : {{ pidgPals }}</h3>
     <h4>palFromPairs : {{ palFromPairs }}</h4>
     <h4>msgPairIdPerContact : {{ msgPairIdPerContact }}</h4> -->
     <h3>contactGrid : {{ contactGrid }}</h3>
+    <h3>contactGrid : {{ foundPidgins.values }}</h3>
     <!-- <h6 style="color: crimson">Status Grid :{{ statusGrid }}</h6> -->
   </div>
 
@@ -55,6 +56,7 @@ import {
   getLastMsgStatusfromMsgsCollection,
   usePidgPalListener,
   getUserProfilePic,
+  useMessageListener,
 } from "../firestore";
 
 const showWorkings = ref(true);
@@ -79,6 +81,28 @@ const cleanupHandleASC = onAuthStateChanged(auth, handleAuthStateChange);
 onBeforeUnmount(cleanupHandleASC);
 
 const { foundPairs: pidgPals } = usePidgPalListener(uname);
+
+const { foundPidgins } = useMessageListener(uname);
+console.log(foundPidgins);
+
+watch(
+  () => foundPidgins,
+  () => {
+    console.log(foundPidgins);
+  }
+);
+
+const foundFromFound = computed(() =>
+  foundPidgins.value.map((doc) => {
+    return {
+      doc,
+    };
+  })
+);
+console.log(foundFromFound.value);
+
+// const foundDocs = getMessages2Docs(uname);
+// console.log(foundDocs);
 
 //get the pals name from pidgpals/foundpairs
 const palFromPairs = computed(() =>
@@ -259,6 +283,7 @@ const logOut = () => {
   display: grid;
   grid-template-columns: auto auto auto;
 }
+
 .grid-item {
   border: 1px solid rgba(0, 0, 0, 0.8);
   text-align: center;

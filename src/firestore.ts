@@ -22,6 +22,8 @@ const userProfilesCollection = collection(firestore, "userProfiles"); //v9
 const pidgpalsCollection = collection(firestore, "pidgpals");
 const messagesCollection = collection(firestore, "messages");
 
+const msgsCollection2 = collection(firestore,"messages2");
+
 export const getUsrProfileFirestore = async (id: string) => {
   const searchForThisUser = doc(userProfilesCollection, id);
   const userProfileQuery = await getDoc(searchForThisUser); //v9
@@ -162,6 +164,24 @@ export function usePidgPalListener(userName: string): PidgPalListenerReturns {
   });
   onUnmounted(close1);
   return { foundPairs };
+}
+
+export function useMessageListener(username:string){
+  const foundPidgins = ref<any[]>([]);
+  let found = [];
+  const findPidginsWithUsername = query(msgsCollection2, where("members", "array-contains",username));
+  const detachMsgListener = onSnapshot(findPidginsWithUsername,(foundDocs) => {
+    found = foundDocs.docs.map((doc) => {
+      return{
+        id:doc.id,
+        ...doc.data(),
+      };
+    });
+    console.log(found);
+    foundPidgins.value = found;
+  });
+  onUnmounted(detachMsgListener);
+  return{foundPidgins}
 }
 
 export async function addPair2PpCollection(name1: string, name2: string) {
