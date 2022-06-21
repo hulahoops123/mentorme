@@ -166,23 +166,17 @@ export function usePidgPalListener(userName: string): PidgPalListenerReturns {
   return { foundPairs };
 }
 
-export function useMessageListener(username:string){
-  const foundPidgins = ref<any[]>([]);
-  let found = [];
-  const findPidginsWithUsername = query(messagesCollection2, where("members", "array-contains",username));
-  const detachMsgListener = onSnapshot(findPidginsWithUsername,(foundDocs) => {
-    found = foundDocs.docs.map((doc) => {
-      return{
-        id:doc.id,
-        ...doc.data(),
-      };
-    });
-    console.log(found);
-    foundPidgins.value = found;
+export const getMessagesfromMessagesCollection2 = async (username: string) => {
+  const searchMessagesWithUsername = query(
+    messagesCollection2,
+    where("members", "array-contains", username)
+  );
+  const foundMessagesWithUsername = await getDocs(searchMessagesWithUsername);
+  const found = foundMessagesWithUsername.forEach((doc) => {
+    return { id: doc.id, ...doc.data() };
   });
-  onUnmounted(detachMsgListener);
-  return{foundPidgins}
-}
+  return {found}
+};
 
 export async function addPair2PpCollection(name1: string, name2: string) {
   const addedPairRef =  await addDoc(pidgpalsCollection, {

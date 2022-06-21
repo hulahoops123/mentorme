@@ -17,7 +17,6 @@
     <h4>palFromPairs : {{ palFromPairs }}</h4>
     <h4>msgPairIdPerContact : {{ msgPairIdPerContact }}</h4> -->
     <h3>contactGrid : {{ contactGrid }}</h3>
-    <h3>contactGrid : {{ foundPidgins.values }}</h3>
     <!-- <h6 style="color: crimson">Status Grid :{{ statusGrid }}</h6> -->
   </div>
 
@@ -35,7 +34,8 @@
           individualPal.pic,
           individualPal.status,
           individualPal.pairID
-        )"
+        )
+      "
     ></PidgpalCardVue>
   </div>
 </template>
@@ -55,7 +55,7 @@ import {
   getLastMessageStatusfromMessagesCollection,
   usePidgPalListener,
   getUserProfilePic,
-  useMessageListener,
+  getMessagesfromMessagesCollection2,
 } from "../firestore";
 
 const showWorkings = ref(true);
@@ -81,27 +81,8 @@ onBeforeUnmount(cleanupHandleASC);
 
 const { foundPairs: pidgPals } = usePidgPalListener(uname);
 
-const { foundPidgins } = useMessageListener(uname);
-console.log(foundPidgins);
-
-watch(
-  () => foundPidgins,
-  () => {
-    console.log(foundPidgins);
-  }
-);
-
-const foundFromFound = computed(() =>
-  foundPidgins.value.map((doc) => {
-    return {
-      doc,
-    };
-  })
-);
-console.log(foundFromFound.value);
-
-// const foundDocs = getMessages2Docs(uname);
-// console.log(foundDocs);
+const foundMessages = getMessagesfromMessagesCollection2(uname);
+console.log(foundMessages);
 
 //get the pals name from pidgpals/foundpairs
 const palFromPairs = computed(() =>
