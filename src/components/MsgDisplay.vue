@@ -47,13 +47,10 @@ async function getMessages() {
   if (result) {
     const length = result.msgsArr.length;
     messages.value = result.msgsArr.map((singlemsg: any, index: number) => {
-      function isLastMessage() {
-        if (index === length - 1) return true;
-      }
-      function isComingBack() {
-        if (palStatus.value === "transit" && singlemsg.sender != myUserName) return true;
-      }
-      if (isLastMessage() && isComingBack()) {
+      const isLastMessage = index === length - 1;
+      const isComingBack =
+        palStatus.value === "transit" && singlemsg.sender != myUserName;
+      if (isLastMessage && isComingBack) {
         return {
           timeSent: singlemsg.timeSent,
           sender: singlemsg.sender,
