@@ -1,47 +1,6 @@
-<template>
-  <UserInfoVue :pic="pic" :display-name="dname"></UserInfoVue>
-  <button class="btn btn-success" @click="logOut">Logout</button>
-
-  <button v-if="!isAddPidgpal" @click="isAddPidgpal = true">Add Pidgpal</button>
-
-  <AddPidgpalVue
-    v-if="isAddPidgpal"
-    @pidgpalchosen="addPidgpal"
-    @shutitdown="isAddPidgpal = false"
-  ></AddPidgpalVue>
-
-  <!-- <button @click="toggleWorkings">Toggle Inner</button> -->
-  <div v-if="showWorkings" hidden>
-    <!-- <h3>global state : {{ gstate.global.loggedInUserProfile }}</h3>
-    <h3>Pidpals : {{ pidgPals }}</h3>
-    <h4>palFromPairs : {{ palFromPairs }}</h4>
-    <h4>msgPairIdPerContact : {{ msgPairIdPerContact }}</h4> -->
-    <h3>contactGrid : {{ contactGrid }}</h3>
-    <!-- <h6 style="color: crimson">Status Grid :{{ statusGrid }}</h6> -->
-  </div>
-
-  <div class="grid-container">
-    <PidgpalCardVue
-      class="grid-item"
-      v-for="individualPal in statusGrid"
-      v-bind:friend="individualPal.pal"
-      :status="individualPal.status"
-      :pic="individualPal.pic"
-      v-bind:key="individualPal.pal"
-      @go-to-spotlight="
-        goToSpotlight(
-          individualPal.pal,
-          individualPal.pic,
-          individualPal.status,
-          individualPal.pairID
-        )
-      "
-    ></PidgpalCardVue>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { async } from "@firebase/util";
+import { log } from "console";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { computed, inject, onBeforeUnmount, ref, watch } from "vue";
 import { useRouter } from "vue-router";
@@ -56,6 +15,7 @@ import {
   usePidgPalListener,
   getUserProfilePic,
   getMessagesfromMessagesCollection2,
+  returnFoundMessages,
 } from "../firestore";
 
 const showWorkings = ref(true);
@@ -82,6 +42,22 @@ onBeforeUnmount(cleanupHandleASC);
 const { foundPairs: pidgPals } = usePidgPalListener(uname);
 
 const foundMessages = getMessagesfromMessagesCollection2(uname);
+foundMessages.then(() => {
+  console.log(foundMessages);
+});
+
+// let found: any = [];
+
+// const foundFromFound = foundMessages.then((result) => found.push(result));
+// // const moreFound = returnFoundMessages(uname);
+// // const foundFromFound = computed(() => {
+// //   return foundMessages.map((doc) => {
+// //     return { doc };
+// //   });
+// // });
+// // foundMessages.forEach((doc) => {
+// //   found.push(doc.data());
+// // });
 console.log(foundMessages);
 
 //get the pals name from pidgpals/foundpairs
@@ -258,6 +234,54 @@ const logOut = () => {
   });
 };
 </script>
+
+<template>
+  <UserInfoVue :pic="pic" :display-name="dname"></UserInfoVue>
+  <button class="btn btn-success" @click="logOut">Logout</button>
+
+  <button v-if="!isAddPidgpal" @click="isAddPidgpal = true">Add Pidgpal</button>
+
+  <AddPidgpalVue
+    v-if="isAddPidgpal"
+    @pidgpalchosen="addPidgpal"
+    @shutitdown="isAddPidgpal = false"
+  ></AddPidgpalVue>
+
+  <ul v-for="item in foundMessages">
+    <li>{{ item }}</li>
+  </ul>
+
+  <!-- <button @click="toggleWorkings">Toggle Inner</button> -->
+  <div v-if="showWorkings" hidden>
+    <!-- <h3>global state : {{ gstate.global.loggedInUserProfile }}</h3>
+    <h3>Pidpals : {{ pidgPals }}</h3>
+    <h4>palFromPairs : {{ palFromPairs }}</h4>
+    <h4>msgPairIdPerContact : {{ msgPairIdPerContact }}</h4> -->
+    <h3>contactGrid : {{ contactGrid }}</h3>
+    <!-- <p>found: {{ foundFromFound }}</p> -->
+    <!-- <h6 style="color: crimson">Status Grid :{{ statusGrid }}</h6> -->
+  </div>
+
+  <div class="grid-container">
+    <PidgpalCardVue
+      class="grid-item"
+      v-for="individualPal in statusGrid"
+      v-bind:friend="individualPal.pal"
+      :status="individualPal.status"
+      :pic="individualPal.pic"
+      v-bind:key="individualPal.pal"
+      @go-to-spotlight="
+        goToSpotlight(
+          individualPal.pal,
+          individualPal.pic,
+          individualPal.status,
+          individualPal.pairID
+        )
+      "
+    ></PidgpalCardVue>
+  </div>
+</template>
+
 <style>
 .grid-container {
   display: grid;
