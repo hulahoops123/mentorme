@@ -18,9 +18,6 @@ import {
 import { onUnmounted, Ref, ref } from "vue";
 import { firestore } from "./firebaseInit";
 
-import { useFirestore } from '@vueuse/firebase/useFirestore'
-
-
 const userProfilesCollection = collection(firestore, "userProfiles"); //v9
 const pidgpalsCollection = collection(firestore, "pidgpals");
 const messagesCollection = collection(firestore, "messages");
@@ -182,11 +179,14 @@ export const getMessagesfromMessagesCollection2 = async (username: string) => {
   );
   const foundMessagesWithUsername = await getDocs(searchMessagesWithUsername);
   const found: any = [];
+  const foundRef = ref<[]>([]);
   foundMessagesWithUsername.forEach((doc) => {
     found.push(doc.data());
   });
-  console.log(found);
+  foundRef.value=found;
+  
   return { found };
+  // return { foundRef };
   // return { foundMessagesWithUsername };
 };
 

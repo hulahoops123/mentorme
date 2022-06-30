@@ -1,3 +1,4 @@
+import { Timestamp } from "@firebase/firestore";
 import { reactive, readonly, ref } from "vue";
 
 //example state
@@ -54,6 +55,28 @@ const updateGlobalPpSpotlight = function (newData) {
   globalPpSpotlight.palname = newData.palname;
 };
 
+//messagesCollection
+interface IndividualMessage{
+  from:string;
+  msgText:string;
+  timeSent:string;
+}
+
+interface MessagesCollection{
+  members:string[];
+  lastMsgTimeSent:Timestamp;
+  messages:IndividualMessage[];
+}
+
+const entireMessageCollection = ref<MessagesCollection[]>([]);
+const updateMessageCollection = function (data) {
+  console.log("global fired");
+  
+  entireMessageCollection.value = data.map((doc) => {
+    return { ...doc };
+  });
+};
+
 export default {
   statusGrid: readonly(statusGrid),
   updateStatusGrid,
@@ -62,7 +85,9 @@ export default {
   loggedInUserProfile: readonly(loggedInUserProfile),
   updateUsrGlobalState,
   globalPpSpotlight:readonly(globalPpSpotlight),
-  updateGlobalPpSpotlight
+  updateGlobalPpSpotlight,
+  entireMessageCollection:readonly(entireMessageCollection),
+  updateMessageCollection,
 };
 
 

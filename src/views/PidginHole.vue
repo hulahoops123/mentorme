@@ -42,23 +42,20 @@ onBeforeUnmount(cleanupHandleASC);
 const { foundPairs: pidgPals } = usePidgPalListener(uname);
 
 const foundMessages = getMessagesfromMessagesCollection2(uname);
-foundMessages.then(() => {
-  console.log(foundMessages);
+
+let found: any = [];
+
+foundMessages.then((result) => {
+  found.push(result.found);
+  console.log(result.found);
 });
 
-// let found: any = [];
-
-// const foundFromFound = foundMessages.then((result) => found.push(result));
-// // const moreFound = returnFoundMessages(uname);
-// // const foundFromFound = computed(() => {
-// //   return foundMessages.map((doc) => {
-// //     return { doc };
-// //   });
-// // });
+// const foundFromFound = computed(() => {
+//   return foundMessages;
+// });
 // // foundMessages.forEach((doc) => {
 // //   found.push(doc.data());
 // // });
-console.log(foundMessages);
 
 //get the pals name from pidgpals/foundpairs
 const palFromPairs = computed(() =>
@@ -247,20 +244,21 @@ const logOut = () => {
     @shutitdown="isAddPidgpal = false"
   ></AddPidgpalVue>
 
-  <ul v-for="item in foundMessages">
+  <ul v-for="item in found">
     <li>{{ item }}</li>
   </ul>
 
   <!-- <button @click="toggleWorkings">Toggle Inner</button> -->
-  <div v-if="showWorkings" hidden>
-    <!-- <h3>global state : {{ gstate.global.loggedInUserProfile }}</h3>
+  <!-- <div v-if="showWorkings"> -->
+  <!-- <h3>global state : {{ gstate.global.loggedInUserProfile }}</h3>
     <h3>Pidpals : {{ pidgPals }}</h3>
     <h4>palFromPairs : {{ palFromPairs }}</h4>
     <h4>msgPairIdPerContact : {{ msgPairIdPerContact }}</h4> -->
-    <h3>contactGrid : {{ contactGrid }}</h3>
-    <!-- <p>found: {{ foundFromFound }}</p> -->
-    <!-- <h6 style="color: crimson">Status Grid :{{ statusGrid }}</h6> -->
-  </div>
+  <h3>contactGrid : {{ contactGrid }}</h3>
+  <!-- <p>found: {{ foundFromFound }}</p> -->
+  <!-- <h6 style="color: crimson">Status Grid :{{ statusGrid }}</h6> -->
+  <!-- <h1>{{ found }}</h1> -->
+  <!-- </div> -->
 
   <div class="grid-container">
     <PidgpalCardVue
