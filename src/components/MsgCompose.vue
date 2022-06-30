@@ -10,7 +10,7 @@
 </template>
 <script setup lang="ts">
 import { computed, inject, ref } from "vue";
-import { addMsgToExisting, addMsgToNew, addPair2PpCollection } from "../firestore";
+import { addMessageToExisting, addMessagesToNew, addPair2PpCollection } from "../firestore";
 import MsgDisplay from "./MsgDisplay.vue";
 
 const gstate: any = inject("global");
@@ -88,12 +88,12 @@ async function createPidpalPair() {
 }
 
 async function saveExistingMsg(msg: object, pairID: string) {
-  const result = await addMsgToExisting(msg, pairID).catch((e) => console.log(e));
+  const result = await addMessageToExisting(msg, pairID).catch((e) => console.log(e));
   return result;
 }
 
 async function saveNewMsg(msg: object, pairID: string) {
-  const result = await addMsgToNew(msg, pairID).catch((e) => console.log(e));
+  const result = await addMessagesToNew(msg, pairID).catch((e) => console.log(e));
   return result;
 }
 </script>

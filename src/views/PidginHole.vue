@@ -1,47 +1,6 @@
-<template>
-  <UserInfoVue :pic="pic" :display-name="dname"></UserInfoVue>
-  <button class="btn btn-success" @click="logOut">Logout</button>
-
-  <button v-if="!isAddPidgpal" @click="isAddPidgpal = true">Add Pidgpal</button>
-
-  <AddPidgpalVue
-    v-if="isAddPidgpal"
-    @pidgpalchosen="addPidgpal"
-    @shutitdown="isAddPidgpal = false"
-  ></AddPidgpalVue>
-
-  <button @click="toggleWorkings">Toggle Inner</button>
-  <div v-if="showWorkings" hidden>
-    <!-- <h3>global state : {{ gstate.global.loggedInUserProfile }}</h3>
-    <h3>Pidpals : {{ pidgPals }}</h3>
-    <h4>palFromPairs : {{ palFromPairs }}</h4>
-    <h4>msgPairIdPerContact : {{ msgPairIdPerContact }}</h4> -->
-    <h3>contactGrid : {{ contactGrid }}</h3>
-    <!-- <h6 style="color: crimson">Status Grid :{{ statusGrid }}</h6> -->
-  </div>
-
-  <div class="grid-container">
-    <PidgpalCardVue
-      class="grid-item"
-      v-for="individualPal in statusGrid"
-      v-bind:friend="individualPal.pal"
-      :status="individualPal.status"
-      :pic="individualPal.pic"
-      v-bind:key="individualPal.pal"
-      @go-to-spotlight="
-        goToSpotlight(
-          individualPal.pal,
-          individualPal.pic,
-          individualPal.status,
-          individualPal.pairID
-        )
-      "
-    ></PidgpalCardVue>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { async } from "@firebase/util";
+import { log } from "console";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { computed, inject, onBeforeUnmount, ref, watch } from "vue";
 import { useRouter } from "vue-router";
@@ -51,10 +10,12 @@ import UserInfoVue from "../components/UserInfo.vue";
 import { auth } from "../firebaseInit";
 import {
   addPidgpalToUserContacts,
-  getUsrProfileFirestore,
-  getLastMsgStatusfromMsgsCollection,
+  getUserProfileFirestore,
+  getLastMessageStatusfromMessagesCollection,
   usePidgPalListener,
   getUserProfilePic,
+  getMessagesfromMessagesCollection2,
+  returnFoundMessages,
 } from "../firestore";
 
 const showWorkings = ref(true);
@@ -80,6 +41,22 @@ onBeforeUnmount(cleanupHandleASC);
 
 const { foundPairs: pidgPals } = usePidgPalListener(uname);
 
+const foundMessages = getMessagesfromMessagesCollection2(uname);
+
+let found: any = [];
+
+foundMessages.then((result) => {
+  found.push(result.found);
+  console.log(result.found);
+});
+
+// const foundFromFound = computed(() => {
+//   return foundMessages;
+// });
+// // foundMessages.forEach((doc) => {
+// //   found.push(doc.data());
+// // });
+
 //get the pals name from pidgpals/foundpairs
 const palFromPairs = computed(() =>
   pidgPals.value.map((doc) => {
@@ -90,8 +67,8 @@ const palFromPairs = computed(() =>
   })
 );
 
-const msgPairIdPerContact2 = ref<any[]>([]);
-msgPairIdPerContact2.value = getPalFromPairs();
+const messagePairIdPerContact2 = ref<any[]>([]);
+messagePairIdPerContact2.value = getPalFromPairs();
 function getPalFromPairs() {
   watch(
     () => gstate.global.loggedInUserProfile.ppContacts,
@@ -111,7 +88,7 @@ function getPalFromPairs() {
 }
 
 //check if a palpair (and therefore  msgid) exists for each contact
-const msgPairIdPerContact = computed(() =>
+const messagePairIdPerContact = computed(() =>
   userContacts.value.map((contact: string) => {
     if (palFromPairs.value.find((pair) => pair.pal === contact)) {
       return palFromPairs.value.find((pair) => pair.pal === contact);
@@ -128,11 +105,11 @@ const msgPairIdPerContact = computed(() =>
 //calculate flight status for each last message
 const contactGrid: any[] = computed(async () => {
   const cttGrid = [];
-  for (const pair of msgPairIdPerContact.value) {
+  for (const pair of messagePairIdPerContact.value) {
     const gotPic = await getUserProfilePic(pair.pal);
 
     if (pair.id != "notStarted") {
-      const gotStatus = await getLastMsgStatusfromMsgsCollection(
+      const gotStatus = await getLastMessageStatusfromMessagesCollection(
         pair.id,
         pair.pal,
         gstate.global.loggedInUserProfile.userName
@@ -210,7 +187,7 @@ addPalfromPairsToUserContacts();
 
 async function updateGstateUserProfile() {
   //get the latest user profile from firebase
-  const userProfileData = await getUsrProfileFirestore(uid).catch((e) => console.log(e));
+  const userProfileData = await getUserProfileFirestore(uid).catch((e) => console.log(e));
   //update the global variable
   gstate.global.updateUsrGlobalState({ uid: uid, ...userProfileData });
 }
@@ -254,11 +231,61 @@ const logOut = () => {
   });
 };
 </script>
+
+<template>
+  <UserInfoVue :pic="pic" :display-name="dname"></UserInfoVue>
+  <button class="btn btn-success" @click="logOut">Logout</button>
+
+  <button v-if="!isAddPidgpal" @click="isAddPidgpal = true">Add Pidgpal</button>
+
+  <AddPidgpalVue
+    v-if="isAddPidgpal"
+    @pidgpalchosen="addPidgpal"
+    @shutitdown="isAddPidgpal = false"
+  ></AddPidgpalVue>
+
+  <ul v-for="item in found">
+    <li>{{ item }}</li>
+  </ul>
+
+  <!-- <button @click="toggleWorkings">Toggle Inner</button> -->
+  <!-- <div v-if="showWorkings"> -->
+  <!-- <h3>global state : {{ gstate.global.loggedInUserProfile }}</h3>
+    <h3>Pidpals : {{ pidgPals }}</h3>
+    <h4>palFromPairs : {{ palFromPairs }}</h4>
+    <h4>msgPairIdPerContact : {{ msgPairIdPerContact }}</h4> -->
+  <h3>contactGrid : {{ contactGrid }}</h3>
+  <!-- <p>found: {{ foundFromFound }}</p> -->
+  <!-- <h6 style="color: crimson">Status Grid :{{ statusGrid }}</h6> -->
+  <!-- <h1>{{ found }}</h1> -->
+  <!-- </div> -->
+
+  <div class="grid-container">
+    <PidgpalCardVue
+      class="grid-item"
+      v-for="individualPal in statusGrid"
+      v-bind:friend="individualPal.pal"
+      :status="individualPal.status"
+      :pic="individualPal.pic"
+      v-bind:key="individualPal.pal"
+      @go-to-spotlight="
+        goToSpotlight(
+          individualPal.pal,
+          individualPal.pic,
+          individualPal.status,
+          individualPal.pairID
+        )
+      "
+    ></PidgpalCardVue>
+  </div>
+</template>
+
 <style>
 .grid-container {
   display: grid;
   grid-template-columns: auto auto auto;
 }
+
 .grid-item {
   border: 1px solid rgba(0, 0, 0, 0.8);
   text-align: center;
