@@ -10,6 +10,7 @@ import {
   addPidgpalToUserContacts,
   getUserProfileFirestore,
   getUserProfilePic,
+  removeFromBlockedContacts,
   useMessageListener,
 } from "../firestore";
 
@@ -158,9 +159,9 @@ const addUserToUserContacts = async (userName: string) => {
   const tempUsrContacts = userContacts.value;
   const tempBlockedContacts = blockedContacts.value;
   if (tempUsrContacts.includes(userName)) {
-    alert("This contact exists");
+    alert("This contact already exists");
   } else if (tempBlockedContacts.includes(userName)) {
-    alert("This contact is blocked");
+    alert("This contact is blocked. Click on blocked contacts to restore them");
   } else {
     await addPidgpalToUserContacts(userId, userName.toLowerCase()).catch((e) => {
       console.log(e);
@@ -180,6 +181,13 @@ const logOut = () => {
     console.error(err);
   });
 };
+
+const showBlocked = ref(false);
+
+async function moveFromBlockedToFriends(blockedName: string) {
+  await removeFromBlockedContacts(userId, blockedName).catch((err) => console.log(err));
+  updateGlobalStateUserProfile();
+}
 </script>
 
 <template>
@@ -190,9 +198,18 @@ const logOut = () => {
 
   <AddPidgpalVue
     v-if="isAddPidgpal"
-    @pidgpalchosen="addUserToUserContacts"
-    @shutitdown="isAddPidgpal = false"
+    @chosen-username="addUserToUserContacts"
+    @exit-add-contact-component="isAddPidgpal = false"
   ></AddPidgpalVue>
+
+  <button v-if="!showBlocked" @click="showBlocked = true">Show Blocked Contacts</button>
+  <div v-if="showBlocked">
+    <h4>Click a blocked contact to unblock them</h4>
+    <ul v-for="aBlockedContact in blockedContacts">
+      <li @click="moveFromBlockedToFriends(aBlockedContact)">{{ aBlockedContact }}</li>
+    </ul>
+    <button @click="showBlocked = false">close</button>
+  </div>
 
   <div class="grid-container">
     <PidgpalCardVue
