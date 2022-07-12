@@ -1,48 +1,44 @@
 <template>
   <h3>This is the pidgpal spotlight</h3>
   <button @click="router.back()">◀️ back</button>
-  <UserInfoVue :pic="palPic" :display-name="palname"></UserInfoVue>
-  <button class="btn btn-success" @click="blockUser(palname)">Block</button>
+  <UserInfoVue :pic="friendPictureUrl" :display-name="friendName"></UserInfoVue>
+  <button class="btn btn-success" @click="blockUser(friendName)">Block</button>
   <br />
   <br />
   <br />
-  <MsgCompose @new-msg-sent="newMessageSent()"></MsgCompose>
-  <MsgDisplayVue v-model:update-messages="shouldUpdateMessages"></MsgDisplayVue>
+  <MessageComposeVue></MessageComposeVue>
+  <MessageDisplay></MessageDisplay>
 </template>
 
 <script setup lang="ts">
-import MsgDisplayVue from "../components/MsgDisplay.vue";
 import { inject, ref } from "vue";
 import { useRouter } from "vue-router";
 import UserInfoVue from "../components/UserInfo.vue";
 import { addPidgpalToBlockedContacts, getUserProfileFirestore } from "../firestore";
-import MsgCompose from "../components/MsgCompose.vue";
-
+import MessageComposeVue from "../components/MessageCompose.vue";
+import MessageDisplay from "../components/MessageDisplay.vue";
 const router = useRouter();
-const gstate: any = inject("global");
-const uid = gstate.global.loggedInUserProfile.uid;
+const globalState: any = inject("global");
+const userId = globalState.global.loggedInUserProfile.uid;
 
-const palname: string = gstate.global.globalPpSpotlight.palname;
-const palPic: string = gstate.global.globalPpSpotlight.palpic;
-
-const shouldUpdateMessages = ref(false);
-function newMessageSent() {
-  shouldUpdateMessages.value = true;
-}
+const friendName: string = globalState.global.globalPpSpotlight.palname;
+const friendPictureUrl: string = globalState.global.globalPpSpotlight.palpic;
 
 async function blockUser(blockThisPal: string) {
   // alert(`Are you sure you want to block ${blockThisPal}?`);
-  await addPidgpalToBlockedContacts(uid, blockThisPal).catch((e) => {
+  await addPidgpalToBlockedContacts(userId, blockThisPal).catch((e) => {
     console.log(e);
   });
-  updateGstateUserProfile();
+  updateGlobalStateUserProfile();
   router.back();
 }
 
-async function updateGstateUserProfile() {
+async function updateGlobalStateUserProfile() {
   //get the latest user profile from firebase
-  const userProfileData = await getUserProfileFirestore(uid).catch((e) => console.log(e));
+  const userProfileData = await getUserProfileFirestore(userId).catch((e) =>
+    console.log(e)
+  );
   //update the global variable
-  gstate.global.updateUsrGlobalState({ uid: uid, ...userProfileData });
+  globalState.global.updateUsrGlobalState({ uid: userId, ...userProfileData });
 }
 </script>

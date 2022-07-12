@@ -20,8 +20,3 @@ const router = createRouter({
 });
 
 export default router;
-// {
-//   path: "/pidgpal-spotlight/:palname",
-//   name: "pidgpal-spotlight",
-//   component: () => import("../views/PidgpalSpotlight.vue"),
-// },

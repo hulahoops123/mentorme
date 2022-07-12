@@ -44,15 +44,17 @@ const updateStatusGrid = function (data) {
 const globalPpSpotlight = reactive({
   palpic:"",
   status: "",
-  pairID: "",
   palname: "",
+  palMessages:[],
 });
 
 const updateGlobalPpSpotlight = function (newData) {
   globalPpSpotlight.status = newData.status;
   globalPpSpotlight.palpic = newData.palpic;
-  globalPpSpotlight.pairID = newData.pairID;
+  // globalPpSpotlight.pairID = newData.pairID;
   globalPpSpotlight.palname = newData.palname;
+  globalPpSpotlight.palMessages = newData.palMessages;
+  globalPpSpotlight.messagesId = newData.messagesId;
 };
 
 //messagesCollection
