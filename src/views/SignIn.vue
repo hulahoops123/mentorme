@@ -1,6 +1,6 @@
 <template>
-  <button v-if="!newUser" @click="googleSignIn">googleIn</button>
-  <div v-if="newUser">
+  <button v-if="!isNewUser" @click="googleSignIn">googleIn</button>
+  <div v-if="isNewUser">
     <UsernameComponent
       msg="enter your username"
       @addthisuser="registerNewUser"
@@ -18,15 +18,15 @@ import UsernameComponent from "../components/UsernameCheck.vue";
 
 const router = useRouter();
 const googleProvider = new GoogleAuthProvider();
-const uid = ref("");
+const userId = ref("");
 const photoURL = ref("");
-const newUser = ref(false);
-const gstate = inject("global");
+const isNewUser = ref(false);
+const globalState = inject("global");
 
 const googleSignIn = () => {
   signInWithPopup(auth, googleProvider)
     .then((user) => {
-      uid.value = user.user.uid;
+      userId.value = user.user.uid;
       user.user.photoURL
         ? (photoURL.value = user.user.photoURL)
         : (photoURL.value = "no pic");
@@ -38,12 +38,12 @@ const googleSignIn = () => {
 };
 
 const checkIfUserInUsersCollection = () => {
-  getUserProfileFirestore(uid.value).then((userProfileData) => {
+  getUserProfileFirestore(userId.value).then((userProfileData) => {
     if (userProfileData != null) {
-      gstate.global.updateUsrGlobalState({ uid: uid.value, ...userProfileData });
+      globalState.global.updateUsrGlobalState({ uid: userId.value, ...userProfileData });
       router.push("pidgin-hole");
     } else {
-      newUser.value = true;
+      isNewUser.value = true;
     }
   });
 };
@@ -52,7 +52,7 @@ const registerNewUser = async (username: any) => {
   await addUserToUserProfilesCollection({
     displayName: username,
     userName: username.toLowerCase(),
-    uid: uid.value,
+    uid: userId.value,
     photoURL: photoURL.value,
   });
   router.push("pidgin-hole");
