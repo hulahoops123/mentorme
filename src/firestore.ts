@@ -1,3 +1,4 @@
+import { functionTypeAnnotation } from "@babel/types";
 import {
   addDoc,
   arrayRemove,
@@ -58,6 +59,14 @@ export const addPidgpalToBlockedContacts = async (
   return await updateDoc(userRef, {
     ppContacts: arrayRemove(pidgpal),
     ppBlocked: arrayUnion(pidgpal), 
+  });
+};
+
+export async function removeFromBlockedContacts(userId:string, blockedName:string){
+  const userRef = doc(userProfilesCollection, userId);
+  return await updateDoc(userRef,{
+    ppBlocked:arrayRemove(blockedName),
+    ppContacts:arrayUnion(blockedName),
   });
 };
 

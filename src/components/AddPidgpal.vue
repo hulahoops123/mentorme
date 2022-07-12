@@ -8,7 +8,7 @@
     v-model="inputUserName"
     title="Enter pidgpal username"
   />
-  <button @click="checkInputUsername" v-if="!checkStarted">Add Pidgpal</button>
+  <button @click="checkAndAddInputName" v-if="!checkStarted">Add Pidgpal</button>
   <p v-if="!userNameExists && checkStarted">
     The username {{ inputUserName }} does not exist
   </p>
@@ -29,20 +29,10 @@ const inputUserName = ref("");
 const userNameExists = ref(false);
 const checkStarted = ref(false);
 
-const checkInputUsername = async () => {
+async function checkAndAddInputName() {
   checkStarted.value = true;
-  if (pattern.test(inputUserName.value)) {
-    await checkIfUserNameUnique(inputUserName.value.toLowerCase()).then((result) => {
-      if (result) {
-        userNameExists.value = true;
-        emits("chosenUsername", inputUserName.value);
-      } else {
-        userNameExists.value = false;
-      }
-    });
-  } else {
-    //if they fail the pattern
-    userNameExists.value = false;
-  }
-};
+  if (!pattern.test(inputUserName.value)) return (userNameExists.value = false);
+  userNameExists.value = await checkIfUserNameUnique(inputUserName.value.toLowerCase());
+  userNameExists.value && emits("chosenUsername", inputUserName.value);
+}
 </script>
