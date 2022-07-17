@@ -188,37 +188,44 @@ async function moveFromBlockedToFriends(blockedName: string) {
   await removeFromBlockedContacts(userId, blockedName).catch((err) => console.log(err));
   updateGlobalStateUserProfile();
 }
+
+function resetAddPidgpalComponentVariables() {
+  isAddPidgpal.value = false;
+  showBlocked.value = false;
+}
 </script>
 
 <template>
   <UserInfoVue :pic="userPictureUrl" :display-name="displayName"></UserInfoVue>
   <button class="btn btn-success" @click="logOut">Logout</button>
 
-  <button v-if="!isAddPidgpal" @click="isAddPidgpal = true">Add Pidgpal</button>
+  <div v-if="!isAddPidgpal">
+    <button @click="isAddPidgpal = true">Add Pidgpal</button>
+  </div>
 
-  <AddPidgpalVue
-    v-if="isAddPidgpal"
-    @chosen-username="addUserToUserContacts"
-    @exit-add-contact-component="isAddPidgpal = false"
-  ></AddPidgpalVue>
-
-  <button v-if="!showBlocked" @click="showBlocked = true">Show Blocked Contacts</button>
-  <div v-if="showBlocked">
-    <h4>Click a blocked contact to unblock them</h4>
-    <ul v-for="aBlockedContact in blockedContacts">
-      <li @click="moveFromBlockedToFriends(aBlockedContact)">{{ aBlockedContact }}</li>
-    </ul>
-    <button @click="showBlocked = false">close</button>
+  <div v-if="isAddPidgpal">
+    <AddPidgpalVue
+      @chosen-username="addUserToUserContacts"
+      @exit-add-contact-component="resetAddPidgpalComponentVariables()"
+    ></AddPidgpalVue>
+    <button v-if="!showBlocked" @click="showBlocked = true">Show Blocked Contacts</button>
+    <div v-if="showBlocked">
+      <h4>Click a blocked contact to unblock them</h4>
+      <ul v-for="aBlockedContact in blockedContacts">
+        <li @click="moveFromBlockedToFriends(aBlockedContact)">{{ aBlockedContact }}</li>
+      </ul>
+      <button @click="showBlocked = false">Hide Blocked Contacts</button>
+    </div>
   </div>
 
   <div class="grid-container">
     <PidgpalCardVue
       class="grid-item"
       v-for="contact in calculatedContactsArray"
-      v-bind:friend="contact.palName"
+      :friend="contact.palName"
       :status="contact.palStatus"
       :pic="contact.palPic"
-      v-bind:key="contact.palName"
+      :key="contact.palName"
       @go-to-spotlight="
         goToSpotlight(
           contact.palName,

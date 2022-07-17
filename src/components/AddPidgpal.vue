@@ -1,20 +1,23 @@
 <template>
   <p>Add Pidgpal component</p>
   <button @click="$emit('exitAddContactComponent')">Close</button>
-  <input
-    :disabled="checkStarted"
-    type="text"
-    placeholder="enter pidgpal username"
-    v-model="inputUserName"
-    title="Enter pidgpal username"
-  />
-  <button @click="checkAndAddInputName" v-if="!checkStarted">Add Pidgpal</button>
-  <p v-if="!userNameExists && checkStarted">
-    The username {{ inputUserName }} does not exist
-  </p>
-  <button v-if="!userNameExists && checkStarted" @click="checkStarted = false">
-    Try Again
-  </button>
+
+  <div id="before-started" v-if="!checkStarted">
+    <input
+      type="text"
+      placeholder="enter pidgpal username"
+      v-model="inputUserName"
+      title="Enter pidgpal username"
+    />
+    <button @click="verifyAndAddInputName">Add this Pidgpal</button>
+  </div>
+
+  <div id="after-started" v-if="checkStarted">
+    <div v-if="userNameDoesNotExist">
+      <button @click="resetStartingVariables()">Try Again</button>
+      <p>The o {{ inputUserName }} does not exist</p>
+    </div>
+  </div>
 </template>
 <script setup lang="ts">
 import { ref } from "vue";
@@ -26,13 +29,20 @@ const emits = defineEmits<{
 }>();
 const pattern = /^([a-zA-Z0-9_.]){5,30}$/; //regex pattern
 const inputUserName = ref("");
-const userNameExists = ref(false);
+const userNameDoesNotExist = ref();
 const checkStarted = ref(false);
 
-async function checkAndAddInputName() {
+function resetStartingVariables() {
+  checkStarted.value = false;
+  userNameDoesNotExist.value = "";
+}
+
+async function verifyAndAddInputName() {
   checkStarted.value = true;
-  if (!pattern.test(inputUserName.value)) return (userNameExists.value = false);
-  userNameExists.value = await checkIfUserNameUnique(inputUserName.value.toLowerCase());
-  userNameExists.value && emits("chosenUsername", inputUserName.value);
+  if (!pattern.test(inputUserName.value)) return (userNameDoesNotExist.value = true);
+  checkIfUserNameUnique(inputUserName.value.toLowerCase()).then((res) => {
+    userNameDoesNotExist.value = !res;
+    !userNameDoesNotExist.value && emits("chosenUsername", inputUserName.value);
+  });
 }
 </script>
