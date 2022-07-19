@@ -1,14 +1,6 @@
 import { Timestamp } from "@firebase/firestore";
 import { reactive, readonly, ref } from "vue";
 
-//example state
-const state = reactive({
-  count: 0,
-});
-const increment = function () {
-  state.count++;
-};
-
 //userprofile
 const loggedInUserProfile = reactive({
   uid:"",
@@ -27,19 +19,6 @@ const updateUsrGlobalState = function (data) {
   loggedInUserProfile.ppBlocked = data.ppBlocked ? data.ppBlocked : [];
 };
 
-//statusGrid
-interface LastMsgStatus {
-  status: string;
-  pal: string;
-  pic: string;
-}
-const statusGrid = ref<LastMsgStatus[]>([]);
-const updateStatusGrid = function (data) {
-  statusGrid.value = data.map((doc) => {
-    return { ...doc };
-  });
-};
-
 //spotlight global
 const globalPpSpotlight = reactive({
   palpic:"",
@@ -51,7 +30,6 @@ const globalPpSpotlight = reactive({
 const updateGlobalPpSpotlight = function (newData) {
   globalPpSpotlight.status = newData.status;
   globalPpSpotlight.palpic = newData.palpic;
-  // globalPpSpotlight.pairID = newData.pairID;
   globalPpSpotlight.palname = newData.palname;
   globalPpSpotlight.palMessages = newData.palMessages;
   globalPpSpotlight.messagesId = newData.messagesId;
@@ -80,10 +58,6 @@ const updateMessageCollection = function (data) {
 };
 
 export default {
-  statusGrid: readonly(statusGrid),
-  updateStatusGrid,
-  state: readonly(state),
-  increment,
   loggedInUserProfile: readonly(loggedInUserProfile),
   updateUsrGlobalState,
   globalPpSpotlight:readonly(globalPpSpotlight),

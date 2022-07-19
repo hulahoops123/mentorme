@@ -7,6 +7,12 @@
   />
   <button @click="sendMessage">Send Message</button>
   <h6>Your current status is : {{ friendCurrentStatus }}</h6>
+
+  <!-- This is what I am currently working on. Trying to incorporate attachments -->
+  <!-- <div style="border-color: red; border-style: solid">
+    <input type="file" name="test" id="test" />
+    <label for="test">Test</label>
+  </div> -->
 </template>
 <script setup lang="ts">
 import { computed, inject, ref } from "vue";

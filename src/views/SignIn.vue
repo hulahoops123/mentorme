@@ -55,6 +55,13 @@ const registerNewUser = async (username: any) => {
     uid: userId.value,
     photoURL: photoURL.value,
   });
+  globalState.global.updateUsrGlobalState({
+    displayName: username,
+    userName: username.toLowerCase(),
+    uid: userId.value,
+    photoURL: photoURL.value,
+  });
+
   router.push("pidgin-hole");
 };
 </script>

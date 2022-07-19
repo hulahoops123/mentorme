@@ -1,6 +1,7 @@
 <template>
   <div @click="emits('goToSpotlight')">
     <img
+      referrerPolicy="no-referrer"
       :src="props.pic"
       alt="no pic"
       style="border-radius: 30%; width: 25px; height: 25px; border: 4px solid #333"
