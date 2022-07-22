@@ -1,4 +1,5 @@
 <template>
+  <h1 class="text-3xl font-bold underline">Hello world!</h1>
   <button v-if="!isNewUser" @click="googleSignIn">googleIn</button>
   <div v-if="isNewUser">
     <UsernameComponent
