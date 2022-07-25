@@ -1,12 +1,14 @@
 <template>
-  <div class="card-image" style="margin-top: 25px; margin-left: 10px">
+  <div class="flex p-3">
     <img
+      class="ring-2 rounded-full h-14 w-14 flex-shrink-0"
       referrerPolicy="no-referrer"
       :src="props.pic"
       alt="no pic"
-      style="border-radius: 50%; width: 75px; height: 75px; border: 4px solid #333"
     />
-    <span>{{ props.displayName }}</span>
+  </div>
+  <div class="flex-grow text-left pl-3 font-sans text-xl font-extrabold">
+    {{ props.displayName }}
   </div>
 </template>
 <script setup lang="ts">

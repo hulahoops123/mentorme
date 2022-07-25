@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col items-center justify-center">
-    <div v-if="!isNewUser">
+    <div v-if="!isNewUser" @click="googleSignIn">
       <button
         @click="googleSignIn"
         type="button"
