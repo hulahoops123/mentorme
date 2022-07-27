@@ -31,6 +31,7 @@ const cleanupHandleASC = onAuthStateChanged(auth, handleAuthStateChange);
 onBeforeUnmount(cleanupHandleASC);
 
 const { foundPidgins } = useMessageListener(userName);
+const showBlocked = ref(false);
 
 const triggerRefresh = ref(false);
 const calculatedContactsArray = ref();
@@ -46,44 +47,46 @@ watch(
     }
     for (const contact of userContacts.value) {
       if (!friendsAlreadyStarted[contact]) {
-        const ret = await prepareNOTStartedContactForStatusGrid(contact);
-        tempArray.push(ret);
+        const returned = await prepareNOTStartedContactForMainGrid(contact);
+        tempArray.push(returned);
       } else {
         const pidgin = friendsAlreadyStarted[contact];
-        const ret = await prepareStartedContactForStatusGrid(pidgin);
-        tempArray.push(ret);
+        const returned = await prepareStartedContactForMainGrid(pidgin);
+        tempArray.push(returned);
       }
     }
     calculatedContactsArray.value = tempArray;
   }
 );
 
-async function prepareNOTStartedContactForStatusGrid(friendsName: string) {
+async function prepareNOTStartedContactForMainGrid(friendsName: string) {
   const friendsPicUrl = await getUserProfilePic(friendsName);
-  const friendStatus = "notStarted";
   const friendsMessages: never[] = [];
   const messagesId = "notStarted";
   return {
     palName: friendsName,
     palPic: friendsPicUrl,
-    palStatus: friendStatus,
     palMessages: friendsMessages,
     messagesId: messagesId,
+    elapsedTime: 0,
+    isIncoming: false,
   };
 }
 
-async function prepareStartedContactForStatusGrid(pidgin: any) {
+async function prepareStartedContactForMainGrid(pidgin: any) {
   const friendsName = getFriendNameFromMembersArray(pidgin.members);
   const friendsPicUrl = await getUserProfilePic(friendsName);
-  const friendStatus = calculateStatus(pidgin.messages, friendsName);
   const friendsMessages = pidgin.messages ? pidgin.messages : [];
   const messagesId = pidgin.id;
+  const timeAndIncoming = calculateElapsedTimeAndIsIncoming(friendsMessages);
+
   return {
     palName: friendsName,
     palPic: friendsPicUrl,
-    palStatus: friendStatus,
     palMessages: friendsMessages,
     messagesId: messagesId,
+    elapsedTime: timeAndIncoming.elapsedTime,
+    isIncoming: timeAndIncoming.isIncoming,
   };
 }
 
@@ -101,6 +104,24 @@ function addNewMessageSendersToContacts(friendsName: string) {
 function getFriendNameFromMembersArray(members: string[]) {
   if (members[0] != userName) return members[0];
   return members[1];
+}
+
+function calculateElapsedTimeAndIsIncoming(messagesArray: []) {
+  const timeAndIncoming = { elapsedTime: 0, isIncoming: false };
+  if (!messagesArray) return timeAndIncoming; //also not possible except for testing
+
+  const lastMessagePosition = messagesArray.length - 1;
+  const lastMessage: any = messagesArray[lastMessagePosition];
+  const lastMessageSender = lastMessage.from;
+  const lastMessageTimeSent = lastMessage.timeSent.seconds * 1000;
+  const timeNow = new Date().getTime();
+
+  timeAndIncoming.isIncoming = userName != lastMessageSender ? true : false;
+
+  const elapsed = timeNow - lastMessageTimeSent;
+  timeAndIncoming.elapsedTime = (elapsed / flightTime()) * 100;
+
+  return timeAndIncoming;
 }
 
 function calculateStatus(messagesArray: [], friendsName: string) {
@@ -182,8 +203,6 @@ const logOut = () => {
   });
 };
 
-const showBlocked = ref(false);
-
 async function moveFromBlockedToFriends(blockedName: string) {
   await removeFromBlockedContacts(userId, blockedName).catch((err) => console.log(err));
   updateGlobalStateUserProfile();
@@ -196,7 +215,7 @@ function resetAddPidgpalComponentVariables() {
 </script>
 
 <template>
-  <div class="flex flex-col">
+  <div class="flex flex-col min-w-sm flex-shrink-0">
     <div name="pic-name-exit" class="mt-4 mx-0.5 flex items-center">
       <UserInfoVue :pic="userPictureUrl" :display-name="displayName"></UserInfoVue>
       <button class="" @click="logOut">
@@ -318,37 +337,25 @@ function resetAddPidgpalComponentVariables() {
         </ul>
       </div>
     </div>
-  </div>
-
-  <div class="grid-container">
-    <PidgpalCardVue
-      class="grid-item"
-      v-for="contact in calculatedContactsArray"
-      :friend="contact.palName"
-      :status="contact.palStatus"
-      :pic="contact.palPic"
-      :key="contact.palName"
-      @go-to-spotlight="
-        goToSpotlight(
-          contact.palName,
-          contact.palPic,
-          contact.palStatus,
-          contact.palMessages,
-          contact.messagesId
-        )
-      "
-    ></PidgpalCardVue>
+    <div class="grid grid-cols-3 mt-4 mx-2.5 gap-4">
+      <PidgpalCardVue
+        class="justify-center"
+        v-for="contact in calculatedContactsArray"
+        :friend="contact.palName"
+        :pic="contact.palPic"
+        :elapsed-time-percentage="contact.elapsedTime"
+        :is-incoming="contact.isIncoming"
+        :key="contact.palName"
+        @go-to-spotlight="
+          goToSpotlight(
+            contact.palName,
+            contact.palPic,
+            contact.palStatus,
+            contact.palMessages,
+            contact.messagesId
+          )
+        "
+      ></PidgpalCardVue>
+    </div>
   </div>
 </template>
-
-<style>
-.grid-container {
-  display: grid;
-  grid-template-columns: auto auto auto;
-}
-
-.grid-item {
-  border: 1px solid rgba(0, 0, 0, 0.8);
-  text-align: center;
-}
-</style>

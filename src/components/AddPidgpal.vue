@@ -19,7 +19,7 @@
     <div id="before-started" v-if="!checkStarted" class="flex mx-2">
       <input
         type="text"
-        class="mr-1 placeholder:italic placeholder:text-slate-400 block bg-white w-full border border-slate-300 rounded-md pl-3 pr-3 shadow-sm focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 sm:text-sm"
+        class="mr-1 mb-8 placeholder:italic placeholder:text-slate-400 block bg-white w-full border border-slate-300 rounded-md pl-3 pr-3 shadow-sm focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 sm:text-sm"
         placeholder="enter pidgin username"
         v-model="inputUserName"
         title="Enter pidgin username"
@@ -42,8 +42,8 @@
       </button>
     </div>
     <div id="after-started" v-if="checkStarted">
-      <div v-if="userNameDoesNotExist" class="">
-        <div class="flex justify-center p-12" @click="resetStartingVariables()">
+      <div v-if="userNameDoesNotExist" class="pb-3">
+        <div class="flex justify-center p-6" @click="resetStartingVariables()">
           <button class="" @click="resetStartingVariables()">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -69,23 +69,6 @@
       </div>
     </div>
   </div>
-
-  <!-- <div id="before-started" v-if="!checkStarted">
-    <input
-      type="text"
-      placeholder="enter pidgpal username"
-      v-model="inputUserName"
-      title="Enter pidgpal username"
-    />
-    <button @click="verifyAndAddInputName">Add this Pidgpal</button>
-  </div>
-
-  <div id="after-started" v-if="checkStarted">
-    <div v-if="userNameDoesNotExist">
-      <button @click="resetStartingVariables()">Try Again</button>
-      <p>The o {{ inputUserName }} does not exist</p>
-    </div>
-  </div> -->
 </template>
 <script setup lang="ts">
 import { ref } from "vue";

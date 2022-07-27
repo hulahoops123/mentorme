@@ -1,5 +1,4 @@
 <template>
-  <h3>This is the pidgpal spotlight</h3>
   <button @click="router.back()">◀️ back</button>
   <UserInfoVue :pic="friendPictureUrl" :display-name="friendName"></UserInfoVue>
   <button class="btn btn-success" @click="blockUser(friendName)">Block</button>
@@ -19,7 +18,10 @@ import MessageComposeVue from "../components/MessageCompose.vue";
 import MessageDisplay from "../components/MessageDisplay.vue";
 const router = useRouter();
 const globalState: any = inject("global");
-const userId = globalState.global.loggedInUserProfile.uid;
+
+const globalUserProfile = globalState.global.loggedInUserProfile;
+const userId = globalUserProfile.uid;
+const userName: string = globalUserProfile.userName;
 
 const friendName: string = globalState.global.globalPpSpotlight.palname;
 const friendPictureUrl: string = globalState.global.globalPpSpotlight.palpic;
